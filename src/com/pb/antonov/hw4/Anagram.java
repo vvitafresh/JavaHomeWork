@@ -17,9 +17,6 @@
 Ему же надо будет - ему жена добудет...
  */
 package com.pb.antonov.hw4;
-
-import com.pb.antonov.hw3.Array;
-
 import java.util.Arrays;
 import java.util.Scanner;
 
