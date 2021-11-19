@@ -21,38 +21,67 @@ WrongPasswordException и WrongLoginException - пользовательские
  */
 package com.pb.antonov.hw8;
 
-public class OnlineShop {
-    static final String defaultLogin = "DefaultUser";
-    static final String defaultPassword = "DefaultUserPassword";
+import java.util.Scanner;
 
+public class OnlineShop {
+//    static final String defaultLogin = "DefaultUser";
+//    static final String defaultPassword = "DefaultUserPassword";
+    static Auth auth = new Auth();
 
     public static void main(String[] args) {
-        System.out.println();
-        Auth auth = new Auth();
+
+        simulateSignUp();
+        simulateLogIn();
+    }
+
+    private static void simulateSignUp(){
+        Scanner scan = new Scanner(System.in);
+        String userLogin, pass, passConfirm;
+
+        System.out.println("Simulating of new user SignUP...");
+        System.out.print("Enter new user login: ");
+        userLogin = scan.next();
+
+        System.out.print("Enter user password: ");
+        pass = scan.next();
+
+        System.out.print("Confirm user password: ");
+        passConfirm = scan.next();
+
 
         try {
-            if(auth.signUp(defaultLogin, defaultPassword, defaultPassword)){
+            if (auth.signUp(userLogin, pass, passConfirm)) {
                 System.out.printf("SignUp of user %s was successful!%n", auth.getLogin());
             }
-        }
-        catch (WrongLoginException ex){
+        } catch (WrongLoginException ex) {
             System.out.println("Wrong Login: " + ex.getMessage());
-        }
-        catch (WrongPasswordException ex){
+        } catch (WrongPasswordException ex) {
             System.out.println("Wrong Password: " + ex.getMessage());
         }
+    }
+
+    private static void simulateLogIn(){
+        Scanner scan = new Scanner(System.in);
+        String userLogin, pass;
+
+        System.out.println();
+        System.out.println("Simulating of user Logging In process...");
+        System.out.print("Enter user login: ");
+        userLogin = scan.next();
+
+        System.out.print("Enter user password: ");
+        pass = scan.next();
 
         System.out.println();
         try {
-            if (auth.signIn(defaultLogin, defaultPassword)) {
+            if (auth.signIn(userLogin, pass)) {
                 System.out.println(auth.getLogin() + " successfully logged in.");
-            }
-            else {
+            } else {
                 System.out.println("LogIn failed!");
             }
-        }
-        catch (WrongLoginException ex){
+        } catch (WrongLoginException ex) {
             System.out.println("Wrong Login: " + ex.getMessage());
         }
     }
+
 }
