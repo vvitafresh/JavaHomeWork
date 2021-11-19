@@ -1,4 +1,5 @@
-/* Создать пакет hw8.
+/*
+Создать пакет hw8.
 Создать класс Auth, который содержит поля login и password и методы:
 
 - signUp (регистрация на сайте) принимающий login, password, и confirmPassword.
