@@ -40,15 +40,15 @@ public class FileNumbers {
             randNumber = rnd.nextInt(maxNumber + 1 - minNumber) + minNumber;
             sbRandNumbers.append(String.format("%2d ", randNumber));
         }
-        toFile(fileName, sbRandNumbers);
+        writeToFile(fileName, sbRandNumbers);
     }
 
     public static void createOddNumbersFile(String fileNameNumbers, String fileNameOddNumbers) {
-        StringBuilder sbFromFile = fromFile(fileNameNumbers);
-        toFile(fileNameOddNumbers, sbFromFile);
+        StringBuilder sbFromFile = fromFileReplacingEvens(fileNameNumbers);
+        writeToFile(fileNameOddNumbers, sbFromFile);
     }
 
-    private static StringBuilder fromFile(String fileName) {
+    private static StringBuilder fromFileReplacingEvens(String fileName) {
         StringBuilder sb = new StringBuilder();
         Path path = Paths.get(fileName);
 
@@ -57,7 +57,7 @@ public class FileNumbers {
         try (BufferedReader reader = Files.newBufferedReader(path)) {
             String line;
             while ((line = reader.readLine()) != null) {
-                sb.append(replaceOddNumbers(removeMultipleSpaces(line.trim()))).append("\n");
+                sb.append(replaceEvenNumbers(removeMultipleSpaces(line.trim()))).append("\n");
             }
         } catch (Exception ex) {
             System.out.println("Error with file read: " + ex);
@@ -66,7 +66,7 @@ public class FileNumbers {
         return sb;
     }
 
-    private static boolean toFile(String fileName, StringBuilder sb) {
+    private static boolean writeToFile(String fileName, StringBuilder sb) {
         Path path = Paths.get(fileName);
 
         // write to file
@@ -79,8 +79,8 @@ public class FileNumbers {
         return true;
     }
 
-    private static String replaceOddNumbers(String stringLine) {
-        String stringNoOdds = "";
+    private static String replaceEvenNumbers(String stringLine) {
+        StringBuilder sbNoEvens = new StringBuilder();
         String[] arrStrings = stringLine.split(" ");
         for (String s : arrStrings) {
             try {
@@ -88,12 +88,12 @@ public class FileNumbers {
                 if (i % 2 == 0) {
                     i = 0;
                 }
-                stringNoOdds += String.format("%2d ", i);
+                sbNoEvens.append(String.format("%2d ", i));
             } catch (NumberFormatException ex) {
                 // Skip
             }
         }
-        return stringNoOdds;
+        return sbNoEvens.toString();
     }
 
     private static String removeMultipleSpaces(String s) {
