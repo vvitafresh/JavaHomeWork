@@ -3,8 +3,10 @@ package com.pb.antonov.hw11;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Objects;
+import static com.pb.antonov.hw11.StrUtil.*;
 
-public class Person {
+public class Person implements Comparable<Person>{
     private String fio;
     private LocalDate dateOfBirth;
     private ArrayList<String> phones;
@@ -33,6 +35,11 @@ public class Person {
         this.editDateTime = editDateTime;
     }
 
+    public Person(String fio, LocalDate dateOfBirth) {
+        this.fio = fio;
+        this.dateOfBirth = dateOfBirth;
+    }
+
     public String getFio() {
         return fio;
     }
@@ -58,14 +65,38 @@ public class Person {
     }
 
 
+//    @Override
+//    public String toString() {
+//        return "Person{" +
+//                "name='" + fio + '\'' +
+//                ", dateOfBirth='" + dateOfBirth + '\'' +
+//                ", phones='" + phones.toString() + '\'' +
+//                ", address='" + address + '\'' +
+//                ", editDateTime=" + editDateTime +
+//                '}';
+//    }
+
     @Override
     public String toString() {
-        return "Person{" +
-                "name='" + fio + '\'' +
-                ", dateOfBirth='" + dateOfBirth + '\'' +
-                ", phones='" + phones.toString() + '\'' +
-                ", address='" + address + '\'' +
-                ", editDateTime=" + editDateTime +
-                '}';
+        //String spaceFio = String.format("%"+ 20 +"s", " ");
+        return   rightPadding(fio,25) +
+                "| Дата рождения: " + dateOfBirth + "\n" +
+                "Телефоны: " + phones.toString() + "\n" +
+                "Адресс: " + address + "\n" +
+                "Редактирование: " + editDateTime;
     }
+
+    @Override
+    public int compareTo(Person o) {
+        return fio.compareTo(o.getFio());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Person person = (Person) o;
+        return Objects.equals(fio, person.fio) || Objects.equals(dateOfBirth, person.dateOfBirth);
+    }
+
 }
