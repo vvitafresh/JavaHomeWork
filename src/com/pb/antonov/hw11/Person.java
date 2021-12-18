@@ -1,12 +1,15 @@
 package com.pb.antonov.hw11;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Objects;
+
 import static com.pb.antonov.hw11.StrUtil.*;
 
-public class Person implements Comparable<Person>{
+public class Person implements Comparable<Person>, Serializable {
     private String fio;
     private LocalDate dateOfBirth;
     private ArrayList<String> phones;
@@ -26,13 +29,15 @@ public class Person implements Comparable<Person>{
 
     public Person() {
     }
+
     public Person(String fio, LocalDate dateOfBirth,
-                  ArrayList<String> phones, String address, LocalDateTime editDateTime) {
+                  ArrayList<String> phones,
+                  String address) {
         this.fio = fio;
         this.dateOfBirth = dateOfBirth;
         this.phones = phones;
         this.address = address;
-        this.editDateTime = editDateTime;
+        this.editDateTime = LocalDateTime.now();
     }
 
     public Person(String fio, LocalDate dateOfBirth) {
@@ -64,26 +69,34 @@ public class Person implements Comparable<Person>{
         this.dateOfBirth = dateOfBirth;
     }
 
+    public LocalDateTime getEditDateTime() {
+        return editDateTime;
+    }
 
-//    @Override
-//    public String toString() {
-//        return "Person{" +
-//                "name='" + fio + '\'' +
-//                ", dateOfBirth='" + dateOfBirth + '\'' +
-//                ", phones='" + phones.toString() + '\'' +
-//                ", address='" + address + '\'' +
-//                ", editDateTime=" + editDateTime +
-//                '}';
-//    }
+    public void setEditDateTime(LocalDateTime editDateTime) {
+        this.editDateTime = editDateTime;
+    }
 
     @Override
     public String toString() {
-        //String spaceFio = String.format("%"+ 20 +"s", " ");
-        return   rightPadding(fio,25) +
+        return "Person{" +
+                "fio='" + fio + '\'' +
+                ", dateOfBirth=" + dateOfBirth +
+                ", phones=" + phones +
+                ", address='" + address + '\'' +
+                ", editDateTime=" + editDateTime +
+                '}';
+    }
+
+    public String toConsole() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        String formattedDateTime = editDateTime.format(formatter); // "2021-12-31 12:30"
+
+        return rightPadding(fio, 50) +
                 "| Дата рождения: " + dateOfBirth + "\n" +
                 "Телефоны: " + phones.toString() + "\n" +
-                "Адресс: " + address + "\n" +
-                "Редактирование: " + editDateTime;
+                "Адрес: " + address + "\n" +
+                "Сохранено: " + formattedDateTime;
     }
 
     @Override

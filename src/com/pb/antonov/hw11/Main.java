@@ -1,101 +1,97 @@
 package com.pb.antonov.hw11;
 
 
-
-import com.sun.deploy.util.StringUtils;
-
+import java.io.*;
+import java.nio.file.Paths;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-import static com.pb.antonov.hw11.StrUtil.rightPadding;
+import static com.pb.antonov.hw11.StrUtil.*;
 
 public class Main {
     static ArrayList<Person> persons;
 
-
-
     public static void main(String[] args) {
-        System.out.println("Main module");
-        String s = rightPadding("Main Menu", 25);
-        System.out.println(s + "ggg");
-
-        persons = new ArrayList<Person>(
-                Arrays.asList(
-                    new Person("Иван Петров",
-                            LocalDate.of(1988, 12, 21),
-                            new ArrayList<String>(Arrays.asList("0997093133")),
-                            "Харьков, ул. Главная 1",
-                            LocalDateTime.now()
-                    ),
-                    new Person("Виталий Антонов",
-                            LocalDate.of(1979, 6, 25),
-                            new ArrayList<String>(Arrays.asList("0687093010", "0971234567")),
-                            "Херсон, ул. Потемкинская 20",
-                            LocalDateTime.now()
-                    ),
-                    new Person("Нина Андреева",
-                            LocalDate.of(1999, 7, 1),
-                            new ArrayList<String>(Arrays.asList("0669876541")),
-                            "Никополь, ул. Никопольская 10",
-                            LocalDateTime.now()
-                    ),
-                    new Person("Ксюша Рыжеева",
-                            LocalDate.of(2001, 2, 3),
-                            new ArrayList<String>(Arrays.asList("0976548732")),
-                            "Киев, ул. Театральная 11",
-                            LocalDateTime.now()
-                    ),
-                    new Person("Ахмет Ахметов",
-                            LocalDate.of(1968, 3, 23),
-                            new ArrayList<String>(Arrays.asList("0981326545", "0971234576")),
-                            "Харьков, ул. Главная 1",
-                            LocalDateTime.now()
-                    )
-                ));
-//        System.out.println(persons.toString());
-
+        File file = Paths.get("files/person.data").toFile();
+        if (file.exists()){
+            System.out.println("Saved Address Book found");
+            loadFromFile();
+        }
+        else{
+            initAddressBook();
+        }
         mainConsoleMenu();
-
     }
 
-    public static void printMenu(String[] options) {
-//        cleanConsole();
-        System.out.println("Меню");
-        for (String option : options) {
-            System.out.println(option);
-        }
-        System.out.print("Сделайте выбор: ");
-    }
-
-    public static void cleanConsole() {
-        for (int i = 0; i < 15; i++) {
-            System.out.println(); //clean console
-        }
-    }
 
     public static void mainConsoleMenu() {
         cleanConsole();
-        String[] options = {"1- Добавить контакт",
-                "2- Найти контакт (удалить, редактировать)",
-                "3- Отобразить весь список (сортировка)",
-                "4- Выход",
+        String[] options = {"1: Добавить контакт",
+                "2: Найти контакт (удалить, редактировать)",
+                "3: Отобразить весь список (сортировка)",
+                "4: Сохранить в файл",
+                "5: Загрузить из файла",
+                "6: Выход",
         };
         Scanner scanner = new Scanner(System.in);
         int option = 1;
-        while (option != 4) {
-            printMenu(options);
+        while (option != 6) {
+            printMenu(options, "==========    Главное Меню   ==========");
             try {
                 option = scanner.nextInt();
                 switch (option) {
                     case 1:
-                        addContact();
+                        addEditContact(-1);     //  -1 => add new Item
                         break;
                     case 2:
                         searchContact();
                         break;
                     case 3:
                         listContacts();
+                        break;
+                    case 4:
+                        saveToFile();
+                        break;
+                    case 5:
+                        loadFromFile();
+                        break;
+                    case 6:
+                        exitApp();
+                        break;
+                }
+            } catch (InputMismatchException ex) {
+                System.out.println("Введите целое число между 1 и " + options.length);
+                scanner.next();
+            } catch (Exception ex) {
+                System.out.println("Неизвестная ошибка");
+                scanner.next();
+            }
+        }
+    }
+
+    public static void listAndSortMenu() {
+//        cleanConsole();
+        String[] options = {"1: Отобразить с сортировкой по ФИО",
+                "2: Отобразить с сортировкой по дате рождения",
+                "3: Возврат в главное меню",
+                "4: Выход",
+        };
+        Scanner scanner = new Scanner(System.in);
+        int option = 1;
+        while (option != 3) {
+            printMenu(options, "==========    Сортировка   ==========");
+            try {
+                option = scanner.nextInt();
+                switch (option) {
+                    case 1:
+                        listPersonsWithSorting(1);
+                        break;
+                    case 2:
+                        listPersonsWithSorting(2);
+                        break;
+                    case 3:
+                        cleanConsole();
                         break;
                     case 4:
                         exitApp();
@@ -111,11 +107,149 @@ public class Main {
         }
     }
 
-    public static void addContact() {
+    public static void editAndDeleteMenu(int selectedItem) {
+//        cleanConsole();
+        System.out.println("Выбран: " + persons.get(selectedItem).getFio());
+        String[] options = {"1: Редактировать контакт",
+                "2: Удалить контакт",
+                "3: Возврат в главное меню",
+                "4: Выход",
+        };
+        Scanner scanner = new Scanner(System.in);
+        int option = 1;
+        while (option != 3) {
+            printMenu(options, "==========    Редактирование/Удаление   ==========");
+            try {
+                option = scanner.nextInt();
+                switch (option) {
+                    case 1:
+                        addEditContact(selectedItem);   // Edit item with index = selectedItem
+                        break;
+                    case 2:
+                        deleteContact(selectedItem);
+                        break;
+                    case 3:
+                        cleanConsole();
+                        break;
+                    case 4:
+                        exitApp();
+                        break;
+                }
+            } catch (InputMismatchException ex) {
+                System.out.println("Введите целое число между 1 и " + options.length);
+                scanner.next();
+            } catch (Exception ex) {
+                System.out.println("Неизвестная ошибка");
+                scanner.next();
+            }
+            cleanConsole();
+            break;
+        }
+
+    }
+
+    public static void printMenu(String[] options, String menuTitle) {
+//        cleanConsole();
+        System.out.println(menuTitle);
+        for (String option : options) {
+            System.out.println(option);
+        }
+        System.out.print("Сделайте выбор: ");
+    }
+
+    public static void cleanConsole() {
+        for (int i = 0; i < 20; i++) {
+            System.out.println(); //clean console
+        }
+    }
+
+    private static void pressEnterKeyToContinue() {
+        System.out.println("Нажмите Enter чтобы продолжить...");
+        try {
+            System.in.read();
+            cleanConsole();
+        } catch (Exception e) {
+        }
+    }
+
+
+    public static void initAddressBook() {
+        persons = new ArrayList<Person>(
+                Arrays.asList(
+                        new Person("Леонардо ди Каприо",
+                                LocalDate.of(1974, 11, 11),
+                                new ArrayList<String>(Arrays.asList("+19687093010", "+18971234567")),
+                                "Лос-Анджелес, Калифорния"
+                        ),
+                        new Person("Кристен Джеймс Стюарт",
+                                LocalDate.of(1990, 4, 9),
+                                new ArrayList<String>(Arrays.asList("10669876541")),
+                                "Лос-Анджелес, США"
+                        ),
+                        new Person("Эмма Ватсон",
+                                LocalDate.of(1990, 4, 15),
+                                new ArrayList<String>(Arrays.asList("70976548732")),
+                                "Мезон-Лаффит, Франция"
+                        ),
+                        new Person("Джонни Депп",
+                                LocalDate.of(1963, 6, 9),
+                                new ArrayList<String>(Arrays.asList("+1997093133")),
+                                "Оуэнсборо, Кентукки"
+                        ),
+                        new Person("Хейден Лесли Панеттьер",
+                                LocalDate.of(1989, 8, 21),
+                                new ArrayList<String>(Arrays.asList("+1997093133")),
+                                "Палисейдс, Нью-Йорк, США"
+                        ),
+                        new Person("Том Хэнкс",
+                                LocalDate.of(1968, 3, 23),
+                                new ArrayList<String>(Arrays.asList("70981326545", "70971234576")),
+                                "Конкорд, Калифорния"
+                        )
+                ));
+    }
+
+    public static void addEditContact(int index) {
         cleanConsole();
         System.out.println("Добавить контакт:");
+
+        System.out.print("Введите ФИО: ");
         Scanner scanner = new Scanner(System.in);
-        String s = scanner.next();
+        String fio = scanner.nextLine();
+
+        System.out.print("Введите дату рождения (год-месяц-число): ");
+        String strDateOfBirth = scanner.nextLine();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate dateOfBirth = LocalDate.parse(strDateOfBirth, formatter);
+
+
+        System.out.print("Введите телефоны (через запятую): ");
+        String phone = scanner.nextLine();
+        ArrayList<String> phonesList = new ArrayList<String>(Arrays.asList(phone.split(",")));
+
+        System.out.print("Введите адрес: ");
+        String address = scanner.nextLine();
+
+        Person pers = new Person(fio, dateOfBirth, phonesList, address);
+        if(index < 0)
+        {
+            // Add new item
+            persons.add(pers);
+            System.out.println("Новый контакт добавлен");
+        }
+        else {
+            // Edit item
+            persons.set(index, pers);
+            System.out.println("Данные сохранены");
+        }
+        pressEnterKeyToContinue();
+    }
+
+    public static void deleteContact(int index) {
+        String fio = persons.get(index).getFio();
+        persons.remove(index);
+        System.out.println("Удален: " + fio);
+        pressEnterKeyToContinue();
     }
 
     public static void searchContact() {
@@ -123,37 +257,100 @@ public class Main {
         System.out.println("Найти контакт");
         System.out.println("Введите ФИО: ");
         Scanner scanner = new Scanner(System.in);
-        String fio = scanner.next();
+        String fio = scanner.nextLine();
 
-        Person p = new Person("Виталий Антонов", LocalDate.now());
+//        Person p = new Person("Виталий Антонов", LocalDate.now());
+        System.out.println(String.format("Ищем по ФИО '%s' ...", fio));
+        Person p = new Person(fio, LocalDate.now());
         int index = persons.indexOf(p);
-        System.out.println("indexOf " + index);
-        if(index>-1){
+        if (index > -1) {
             System.out.println("Контакт найден:");
-            System.out.println(persons.get(index).toString());
+            System.out.println(delimiterLine(80));
+            System.out.println(persons.get(index).toConsole());
+            System.out.println(delimiterLine(80));
+            editAndDeleteMenu(index);
+        } else {
+            System.out.println("Контакт НЕ найден!");
         }
-
+//        pressEnterKeyToContinue();
     }
 
     public static void listContacts() {
-        System.out.println("Отобразить весь список");
+        System.out.println("Отобразить весь список:");
+        listPersonsWithSorting(0);
+        listAndSortMenu();
+    }
+
+    public static void listPersonsWithSorting(int sortOrder) {
+        //TODO Use enum for sortOrder
+        System.out.println(delimiterLine(80));
+        switch (sortOrder) {
+            case 1:
+                persons.sort(
+                        new Comparator<Person>() {
+                            @Override
+                            public int compare(Person o1, Person o2) {
+                                return o1.getFio().compareTo(o2.getFio());
+                            }
+                        }
+                );
+                break;
+            case 2:
+                persons.sort(
+                        new Comparator<Person>() {
+                            @Override
+                            public int compare(Person o1, Person o2) {
+                                return o1.getDateOfBirth().compareTo(o2.getDateOfBirth());
+                            }
+                        }
+                );
+                break;
+        }
         for (Person p :
                 persons) {
-            System.out.println("ФИО: " + p.getFio());
+            System.out.println(p.toConsole());
+            System.out.println(delimiterLine(80));
+        }
+    }
+
+    public static void saveToFile(){
+        System.out.println("Сохранение в файл");
+        File file = Paths.get("files/person.data").toFile();
+        try {
+            FileOutputStream outputStream = new FileOutputStream(file);
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
+
+            objectOutputStream.writeObject(persons);
+            objectOutputStream.close();
+        }
+        catch (Exception ex){
+            System.out.println(ex.toString());
+            System.out.println(ex.getMessage().toString());
+        }
+        cleanConsole();
+        System.out.println("Сохранение в файл завершено");
+        pressEnterKeyToContinue();
+    }
+
+    public static void loadFromFile(){
+        System.out.println("Загрузка из файла");
+
+        File file = Paths.get("files/person.data").toFile();
+        try {
+            FileInputStream fileInputStream = new FileInputStream(file);
+            ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+
+            persons = (ArrayList<Person>) objectInputStream.readObject();
+
+            System.out.println(persons);
+        }
+        catch (Exception ex){
+            System.out.println(ex.toString());
         }
 
-        persons.sort(
-                new Comparator<Person>() {
-                    @Override
-                    public int compare(Person o1, Person o2) {
-                        return o1.getFio().compareTo(o2.getFio());
-                    }
-                }
-        );
-        System.out.println(persons.toString());
     }
 
     public static void exitApp() {
-
+        System.exit(0);
     }
 }
