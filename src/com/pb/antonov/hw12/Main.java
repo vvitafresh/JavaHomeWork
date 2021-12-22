@@ -1,7 +1,5 @@
 package com.pb.antonov.hw12;
 
-import com.pb.antonov.hw12.Person;
-
 import java.io.*;
 import java.nio.file.Paths;
 import java.time.LocalDate;
@@ -262,8 +260,11 @@ public class Main {
 
 //        Person p = new Person("Виталий Антонов", LocalDate.now());
         System.out.println(String.format("Ищем по ФИО '%s' ...", fio));
-        com.pb.antonov.hw12.Person p = new com.pb.antonov.hw12.Person(fio, LocalDate.now());
-        int index = persons.indexOf(p);
+        //Person p = new Person(fio, LocalDate.now());
+
+        //TODO search with stream API
+        Optional<Person> p = persons.stream().filter(o -> o.getFio().equals(fio)).findFirst();
+        int index = persons.indexOf(p.get());
         if (index > -1) {
             System.out.println("Контакт найден:");
             System.out.println(delimiterLine(80));
@@ -289,7 +290,9 @@ public class Main {
             case 1:
                 //TODO Replace .sort with lambda
                 persons.sort(
-                        (o1, o2) -> o1.getFio().compareTo(o2.getFio())
+                        //(o1, o2) -> o1.getFio().compareTo(o2.getFio())
+                        //Comparator.comparing(Person::getFio)
+                        Comparator.comparing(o -> o.getFio())
                 );
                 break;
             case 2:
