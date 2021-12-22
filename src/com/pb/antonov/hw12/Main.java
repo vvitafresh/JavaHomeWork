@@ -1,5 +1,6 @@
-package com.pb.antonov.hw11;
+package com.pb.antonov.hw12;
 
+import com.pb.antonov.hw12.Person;
 
 import java.io.*;
 import java.nio.file.Paths;
@@ -7,10 +8,10 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-import static com.pb.antonov.hw11.StrUtil.*;
+import static com.pb.antonov.hw12.StrUtil.*;
 
 public class Main {
-    static ArrayList<Person> persons;
+    static ArrayList<com.pb.antonov.hw12.Person> persons;
 
     public static void main(String[] args) {
         File file = Paths.get("files/person.data").toFile();
@@ -174,34 +175,34 @@ public class Main {
 
 
     public static void initAddressBook() {
-        persons = new ArrayList<Person>(
+        persons = new ArrayList<com.pb.antonov.hw12.Person>(
                 Arrays.asList(
-                        new Person("Леонардо ди Каприо",
+                        new com.pb.antonov.hw12.Person("Леонардо ди Каприо",
                                 LocalDate.of(1974, 11, 11),
                                 new ArrayList<String>(Arrays.asList("+19687093010", "+18971234567")),
                                 "Лос-Анджелес, Калифорния"
                         ),
-                        new Person("Кристен Джеймс Стюарт",
+                        new com.pb.antonov.hw12.Person("Кристен Джеймс Стюарт",
                                 LocalDate.of(1990, 4, 9),
                                 new ArrayList<String>(Arrays.asList("10669876541")),
                                 "Лос-Анджелес, США"
                         ),
-                        new Person("Эмма Ватсон",
+                        new com.pb.antonov.hw12.Person("Эмма Ватсон",
                                 LocalDate.of(1990, 4, 15),
                                 new ArrayList<String>(Arrays.asList("70976548732")),
                                 "Мезон-Лаффит, Франция"
                         ),
-                        new Person("Джонни Депп",
+                        new com.pb.antonov.hw12.Person("Джонни Депп",
                                 LocalDate.of(1963, 6, 9),
                                 new ArrayList<String>(Arrays.asList("+1997093133")),
                                 "Оуэнсборо, Кентукки"
                         ),
-                        new Person("Хейден Лесли Панеттьер",
+                        new com.pb.antonov.hw12.Person("Хейден Лесли Панеттьер",
                                 LocalDate.of(1989, 8, 21),
                                 new ArrayList<String>(Arrays.asList("+1997093133")),
                                 "Палисейдс, Нью-Йорк, США"
                         ),
-                        new Person("Том Хэнкс",
+                        new com.pb.antonov.hw12.Person("Том Хэнкс",
                                 LocalDate.of(1968, 3, 23),
                                 new ArrayList<String>(Arrays.asList("70981326545", "70971234576")),
                                 "Конкорд, Калифорния"
@@ -230,7 +231,7 @@ public class Main {
         System.out.print("Введите адрес: ");
         String address = scanner.nextLine();
 
-        Person pers = new Person(fio, dateOfBirth, phonesList, address);
+        com.pb.antonov.hw12.Person pers = new com.pb.antonov.hw12.Person(fio, dateOfBirth, phonesList, address);
         if(index < 0)
         {
             // Add new item
@@ -259,9 +260,9 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         String fio = scanner.nextLine();
 
-
+//        Person p = new Person("Виталий Антонов", LocalDate.now());
         System.out.println(String.format("Ищем по ФИО '%s' ...", fio));
-        Person p = new Person(fio, LocalDate.now());
+        com.pb.antonov.hw12.Person p = new com.pb.antonov.hw12.Person(fio, LocalDate.now());
         int index = persons.indexOf(p);
         if (index > -1) {
             System.out.println("Контакт найден:");
@@ -286,27 +287,19 @@ public class Main {
         System.out.println(delimiterLine(80));
         switch (sortOrder) {
             case 1:
+                //TODO Replace .sort with lambda
                 persons.sort(
-                        new Comparator<Person>() {
-                            @Override
-                            public int compare(Person o1, Person o2) {
-                                return o1.getFio().compareTo(o2.getFio());
-                            }
-                        }
+                        (o1, o2) -> o1.getFio().compareTo(o2.getFio())
                 );
                 break;
             case 2:
+                //TODO Replace .sort with lambda
                 persons.sort(
-                        new Comparator<Person>() {
-                            @Override
-                            public int compare(Person o1, Person o2) {
-                                return o1.getDateOfBirth().compareTo(o2.getDateOfBirth());
-                            }
-                        }
+                        (o1, o2) -> o1.getDateOfBirth().compareTo(o2.getDateOfBirth())
                 );
                 break;
         }
-        for (Person p :
+        for (com.pb.antonov.hw12.Person p :
                 persons) {
             System.out.println(p.toConsole());
             System.out.println(delimiterLine(80));
