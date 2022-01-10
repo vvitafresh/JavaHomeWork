@@ -7,18 +7,26 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.time.LocalDateTime;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Server {
-    public static void main(String[] args) {
-        int port = 7777;
-        try {
-            ServerSocket srvSocket = new ServerSocket(port);
-            while (true) {
-                System.out.println("Waiting for connection on port " + port);
-                Socket clnSocket = srvSocket.accept();
-                System.out.println("Client connected");
 
-                try (Socket localSocket = clnSocket;
+    static class Handler implements Runnable {
+
+        private final Socket socket;
+
+        public Handler(Socket socket) {
+            this.socket = socket;
+        }
+
+
+        @Override
+        public void run() {
+            //
+            try {
+                System.out.println(Thread.currentThread().getName() + " connected");
+                try (Socket localSocket = this.socket;
                      PrintWriter out = new PrintWriter(localSocket.getOutputStream(), true);
                      BufferedReader in = new BufferedReader(new InputStreamReader(localSocket.getInputStream()))
                 ) {
@@ -39,9 +47,33 @@ public class Server {
                     ex.printStackTrace(System.out);
                     System.exit(-1);
                 }
+
             }
-        } catch (IOException ex) {
-            ex.printStackTrace(System.out);
+            catch (Exception ex){
+                ex.printStackTrace();
+            }
+            finally {
+                try {
+                    socket.close();
+                }
+                catch (Exception ex){
+                    // Ignore
+                }
+            }
         }
     }
+
+    public static void main(String[] args) throws Exception {
+        int port = 7777;
+        ServerSocket serverSocket = new ServerSocket(port);
+        System.out.println("Server started. Port: " + port);
+        ExecutorService threadPool = Executors.newFixedThreadPool(10);
+
+        System.out.println("Waiting for client");
+        while (true) {
+            Socket clientSocket = serverSocket.accept();
+            threadPool.submit(new Handler(clientSocket));
+        }
+    }
+
 }
